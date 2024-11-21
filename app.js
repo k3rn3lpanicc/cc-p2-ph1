@@ -6,7 +6,12 @@ const app = express();
 configDotenv();
 const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.API_KEY;
-const redis = new Redis();
+const redis = new Redis({
+	host: 'redis-container',
+	port: 6379,
+});
+
+redis.set('matin', 'yup').then(() => console.log('Redis set'));
 
 app.use(express.json());
 
