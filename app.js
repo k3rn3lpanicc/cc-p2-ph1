@@ -6,12 +6,11 @@ const app = express();
 configDotenv();
 const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.API_KEY;
+const STORE_TIME = process.env.STORE_TIME || 60 * 5;
 const redis = new Redis({
 	host: 'redis-container',
 	port: 6379,
 });
-
-redis.set('matin', 'yup').then(() => console.log('Redis set'));
 
 app.use(express.json());
 
@@ -27,20 +26,29 @@ app.get('/word', (req, res) => {
 	});
 });
 
-app.get('/definition', (req, res) => {
+app.get('/definition', async (req, res) => {
 	const word = req.query.word;
-	const result = axios.get(
-		`https://api.api-ninjas.com/v1/dictionary?word=${word}`,
-		{
-			headers: {
-				'X-Api-Key': API_KEY,
-			},
-		}
-	);
-
-	result.then((response) => {
+	const redisRes = await redis.get(word);
+	if (redisRes) {
+		console.log('Read from Redis');
+		res.json(JSON.parse(redisRes));
+	} else {
+		const response = await axios.get(
+			`https://api.api-ninjas.com/v1/dictionary?word=${word}`,
+			{
+				headers: {
+					'X-Api-Key': API_KEY,
+				},
+			}
+		);
+		await redis.setex(
+			word,
+			STORE_TIME,
+			JSON.stringify(response.data.definition)
+		);
+		console.log('Read from API');
 		res.json(response.data.definition);
-	});
+	}
 });
 
 redis.on('error', (err) => {
