@@ -1,10 +1,12 @@
 const { default: axios } = require('axios');
 const { configDotenv } = require('dotenv');
+const { default: Redis } = require('ioredis');
 const express = require('express');
 const app = express();
 configDotenv();
 const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.API_KEY;
+const redis = new Redis();
 
 app.use(express.json());
 
@@ -35,5 +37,9 @@ app.get('/definition', (req, res) => {
 		res.json(response.data.definition);
 	});
 });
-console.log({ PORT, API_KEY });
+
+redis.on('error', (err) => {
+	console.error('Redis connection error:', err);
+});
+
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
