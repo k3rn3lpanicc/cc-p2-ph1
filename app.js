@@ -31,7 +31,7 @@ app.get('/definition', async (req, res) => {
 	const redisRes = await redis.get(word);
 	if (redisRes) {
 		console.log('Read from Redis');
-		res.json({ ...JSON.parse(redisRes), from: 'redis' });
+		res.json({ definition: JSON.parse(redisRes), from: 'redis' });
 	} else {
 		const response = await axios.get(
 			`https://api.api-ninjas.com/v1/dictionary?word=${word}`,
@@ -41,13 +41,14 @@ app.get('/definition', async (req, res) => {
 				},
 			}
 		);
+		console.log({ data: response.data });
 		await redis.setex(
 			word,
 			STORE_TIME,
 			JSON.stringify(response.data.definition)
 		);
 		console.log('Read from API');
-		res.json({ ...response.data.definition, from: 'api' });
+		res.json({ definition: response.data.definition, from: 'api' });
 	}
 });
 
