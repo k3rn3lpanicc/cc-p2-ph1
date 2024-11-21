@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+        redis:
+                image: ghcr.io/aut-cloud-computing-fall-2024/redis
+                container_name: redis-container
+                ports:
+                        - '6379:6379'
+                volumes:
+                        - redis-data:/data
+                networks:
+                        - ccp2-network
+
+        app:
+                build:
+                        context: .
+                        dockerfile: Dockerfile
+                image: k3rn3lpanicc/ccp2-node
+                container_name: server
+                ports:
+                        - '3000:3000'
+                networks:
+                        - ccp2-network
+                depends_on:
+                        - redis
+
+volumes:
+        redis-data:
+
+networks:
+        ccp2-network:
+                driver: bridge
