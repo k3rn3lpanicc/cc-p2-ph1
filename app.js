@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.API_KEY;
 const STORE_TIME = process.env.STORE_TIME || 60 * 5;
 const redis = new Redis({
-	host: 'redis-container',
+	host: 'redis-service',
 	port: 6379,
 });
 
@@ -31,7 +31,7 @@ app.get('/definition', async (req, res) => {
 	const redisRes = await redis.get(word);
 	if (redisRes) {
 		console.log('Read from Redis');
-		res.json({ definition: JSON.parse(redisRes), from: 'redis' });
+		res.json({ definition: JSON.parse(redisRes), from: 'redis', pod: process.env.POD_NAME });
 	} else {
 		const response = await axios.get(
 			`https://api.api-ninjas.com/v1/dictionary?word=${word}`,
@@ -48,9 +48,15 @@ app.get('/definition', async (req, res) => {
 			JSON.stringify(response.data.definition)
 		);
 		console.log('Read from API');
-		res.json({ definition: response.data.definition, from: 'api' });
+		res.json({ definition: response.data.definition, from: 'api', pod: process.env.POD_NAME });
 	}
 });
+
+app.get('/health', (req, res) => {
+	res.status(200).send('OK');
+});
+
+
 
 redis.on('error', (err) => {
 	console.error('Redis connection error:', err);

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: project-config
+  namespace: ccp2-namespace
+data:
+  PORT: "3000"
+  STORE_TIME: "300"

@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+  namespace: ccp2-namespace
+  labels:
+    app: redis-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-service
+  template:
+    metadata:
+      labels:
+        app: redis-service
+    spec:
+      containers:
+      - name: redis-container
+        image: ghcr.io/aut-cloud-computing-fall-2024/redis
+        ports:
+        - containerPort: 6379
+        volumeMounts:
+        - name: redis-data-volume
+          mountPath: /data # Path inside the Redis container
+      volumes:
+      - name: redis-data-volume
+        persistentVolumeClaim:
+          claimName: redis-pvc # Links to the PVC

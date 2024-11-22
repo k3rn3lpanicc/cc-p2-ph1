@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+  namespace: ccp2-namespace
+spec:
+  accessModes:
+    - ReadWriteOnce # Matches the PV's access mode
+  resources:
+    requests:
+      storage: 1Gi # Must match or be less than the PV's capacity
+  storageClassName: redis-storage # Matches the PV's storage class

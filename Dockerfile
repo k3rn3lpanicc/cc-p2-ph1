@@ -1,26 +1,20 @@
+# Use the official Node.js image
 FROM node:18-slim
 
-ENV PORT=3000
-ENV API_KEY=T7EN9tmHlWn0mABKfOZGHg==9KILceps3XR8koMB
-ENV STORE_TIME=300
-# Create app directory
+# Set the working directory
 WORKDIR /usr/src/app
 
-# Install dependencies
+# Copy package.json and package-lock.json
 COPY package*.json ./
+
+# Install dependencies
 RUN npm install
 
-# Copy app source
+# Copy the application code
 COPY . .
 
-# Build the .env file
+# Expose the port (same as defined in Kubernetes ConfigMap or Secret)
+EXPOSE 3000
 
-RUN echo "PORT=${PORT}" > .env
-RUN echo "API_KEY=${API_KEY}" >> .env
-RUN echo "STORE_TIME=${STORE_TIME}" >> .env
-
-# Expose the app's port
-EXPOSE ${PORT}
-
-# Start the app
+# Start the application
 CMD ["node", "app.js"]
