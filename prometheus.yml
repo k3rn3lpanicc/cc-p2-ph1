@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 3s
+
+scrape_configs:
+  - job_name: "app-job"
+    static_configs:
+      - targets: ["app:3000"]
